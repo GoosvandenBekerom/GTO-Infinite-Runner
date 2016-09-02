@@ -14,14 +14,14 @@ namespace Assets.Scripts
 
         // Player Properties
         [Header("Player Properties")]
-        [Range(0.6f, 1.1f)]
+        [Range(0.1f, 1.5f)]
         public float MovementSpeed;
 
 
         // Path Properties
         [Header("Path Properties")]
         [Tooltip("This represents the speed in seconds")]
-        [Range(2, 1)]
+        [Range(3, 1)]
         public float SpawnSpeed;
 
         // queue to get rid of old platforms
