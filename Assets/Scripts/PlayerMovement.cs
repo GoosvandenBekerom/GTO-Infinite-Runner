@@ -6,13 +6,13 @@ namespace Assets.Scripts
 {
     public class PlayerMovement : MonoBehaviour
     {
-        private float _velocityY;
-        private float _defaultYpos;
-        private float _gravity;
         private bool _onGround;
         private bool _sliding;
 
-        private bool _applyGravity;
+        private const int JumpHeight = 275;
+        private const int SlideVelocity = 750; // force downwards for sliding after jump
+
+        private Rigidbody _rigidbody;
 
         // touch properties
         private const int MinSwipeDist = 10;
@@ -20,11 +20,8 @@ namespace Assets.Scripts
 
         private void Awake()
         {
-            _velocityY = 0.0f;
-            _defaultYpos = transform.position.y;
-            _gravity = 0.25f;
             _onGround = true;
-            _applyGravity = false;
+            _rigidbody = GetComponent<Rigidbody>();
         }
 
         private void Update()
@@ -90,35 +87,18 @@ namespace Assets.Scripts
                         break;
                 }
             }
-
-            _applyGravity = !_applyGravity; // to slow down gravity
-            if (!_onGround && _applyGravity)
-            {
-                _velocityY -= _gravity;
-                transform.Translate(0, _velocityY, 0);
-            }
-
-            if ((transform.position.y < _defaultYpos) && !_sliding)
-            {
-                var pos = transform.position;
-                transform.position = new Vector3(pos.x, _defaultYpos, pos.z);
-                _velocityY = 0.0f;
-                _onGround = true;
-            }
         }
 
         private void Jump()
         {
             if (!_onGround || _sliding) return;
 
-            _velocityY = 1.25f;
+            _rigidbody.AddForce(Vector3.up * JumpHeight);
             _onGround = false;
-            _applyGravity = true;
         }
 
         private void Slide()
         {
-            //if (_sliding || !_onGround) return;
             if (_sliding) return;
 
             StartCoroutine(SlideAndRise());
@@ -126,20 +106,13 @@ namespace Assets.Scripts
 
         IEnumerator SlideAndRise()
         {
-            var pos = transform.position;
-            var grav = _gravity;
-            _gravity = 0.0f;
-            _velocityY = 0.0f;
+            transform.localScale += Vector3.down/2;
+            _rigidbody.AddForce(Vector3.down * SlideVelocity);
             _sliding = true;
-            
-            transform.position = new Vector3(pos.x, 0.5f, pos.z);
-            transform.Rotate(-90, 0, 0);
 
             yield return new WaitForSeconds(0.65f);
 
-            transform.Rotate(90, 0, 0);
-            transform.Translate(Vector3.up/2);
-            _gravity = grav;
+            transform.localScale += Vector3.up / 2;
             _sliding = false;
         }
 
@@ -156,6 +129,14 @@ namespace Assets.Scripts
             if (transform.position.x < 2)
             {
                 transform.Translate(Vector3.right);
+            }
+        }
+
+        void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.CompareTag("Floor") && !_onGround)
+            {
+                _onGround = true;
             }
         }
     }
