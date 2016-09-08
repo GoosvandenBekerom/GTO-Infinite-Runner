@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Linq.Expressions;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -10,8 +10,9 @@ namespace Assets.Scripts
         private float _defaultYpos;
         private float _gravity;
         private bool _onGround;
+        private bool _sliding;
 
-        private const int Lanes = 5;
+        private bool _applyGravity;
 
         // touch properties
         private const int MinSwipeDist = 10;
@@ -21,8 +22,9 @@ namespace Assets.Scripts
         {
             _velocityY = 0.0f;
             _defaultYpos = transform.position.y;
-            _gravity = 0.5f;
+            _gravity = 0.25f;
             _onGround = true;
+            _applyGravity = false;
         }
 
         private void Update()
@@ -89,14 +91,17 @@ namespace Assets.Scripts
                 }
             }
 
-            _velocityY -= _gravity;
+            _applyGravity = !_applyGravity; // to slow down gravity
+            if (!_onGround && _applyGravity)
+            {
+                _velocityY -= _gravity;
+                transform.Translate(0, _velocityY, 0);
+            }
 
-            transform.Translate(0, _velocityY, 0);
-
-            if (transform.position.y < _defaultYpos)
+            if ((transform.position.y < _defaultYpos) && !_sliding)
             {
                 var pos = transform.position;
-                transform.position = new Vector3(pos.x, _defaultYpos, pos.x);
+                transform.position = new Vector3(pos.x, _defaultYpos, pos.z);
                 _velocityY = 0.0f;
                 _onGround = true;
             }
@@ -104,15 +109,38 @@ namespace Assets.Scripts
 
         private void Jump()
         {
-            if (!_onGround) return;
+            if (!_onGround || _sliding) return;
 
-            _velocityY = 2;
+            _velocityY = 1.25f;
             _onGround = false;
+            _applyGravity = true;
         }
 
         private void Slide()
         {
-            Debug.Log("Slide");
+            //if (_sliding || !_onGround) return;
+            if (_sliding) return;
+
+            StartCoroutine(SlideAndRise());
+        }
+
+        IEnumerator SlideAndRise()
+        {
+            var pos = transform.position;
+            var grav = _gravity;
+            _gravity = 0.0f;
+            _velocityY = 0.0f;
+            _sliding = true;
+            
+            transform.position = new Vector3(pos.x, 0.5f, pos.z);
+            transform.Rotate(-90, 0, 0);
+
+            yield return new WaitForSeconds(0.65f);
+
+            transform.Rotate(90, 0, 0);
+            transform.Translate(Vector3.up/2);
+            _gravity = grav;
+            _sliding = false;
         }
 
         private void MoveLeft()
