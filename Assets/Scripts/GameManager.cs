@@ -14,7 +14,7 @@ namespace Assets.Scripts
 
         // Player Properties
         [Header("Player Properties")]
-        [Range(0.1f, 1.5f)]
+        [Range(5, 50)]
         public float MovementSpeed;
         
         // queue to get rid of old platforms

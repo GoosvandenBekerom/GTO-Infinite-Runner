@@ -8,7 +8,10 @@ namespace Assets.Scripts
         public int RenderDistance;
 
         private float _platformLength;
+        private Transform _firstPlatform;
         private Transform _lastPlatform;
+
+        public Transform Player;
 
         void Start()
         {
@@ -16,13 +19,15 @@ namespace Assets.Scripts
 
             for (var i = 0; i < RenderDistance; i++)
             {
-                SpawnPlatform(i*_platformLength);
+                SpawnPlatform(false, i*_platformLength);
             }
+
+            _firstPlatform = GameManager.Instance.Platforms.Peek().transform;
         }
 
         void FixedUpdate()
         {
-            // move platforms (this gameobject is parent to all platforms)
+            /*// move platforms (this gameobject is parent to all platforms)
             transform.Translate(0, 0, -GameManager.Instance.MovementSpeed);
 
             if (GameManager.Instance.Platforms.Peek().transform.position.z < -_platformLength)
@@ -31,7 +36,7 @@ namespace Assets.Scripts
 
                 var oldPlatform = GameManager.Instance.Platforms.Dequeue();
                 Destroy(oldPlatform);
-            }
+            }*/
             // TODO: Levels genereren voor de speler, object plaatsen waar speler mee botst om te weten
             // TODO: dat de speler op een nieuw platform is....
         }
@@ -39,11 +44,13 @@ namespace Assets.Scripts
         /// <summary>
         /// Spawn a new platform at the end of the world.
         /// </summary>
-        /// <param name="zPosition"> Position on the z axis the platform should spawn at</param>
         /// <returns> The newly instantiated platform </returns>
-        public GameObject SpawnPlatform(float zPosition)
+        public GameObject SpawnPlatform(bool removeOld, float zPos = -1)
         {
             var pos = Platform.transform.position;
+            var zPosition = (zPos == -1) 
+                ? _lastPlatform.transform.position.z + _platformLength 
+                : zPos;
             var platform = Instantiate(
                 Platform,
                 new Vector3(pos.x, pos.y, zPosition),
@@ -51,7 +58,11 @@ namespace Assets.Scripts
 
             platform.transform.parent = transform;
 
-            GameManager.Instance.Platforms.Enqueue(platform);
+            var world = GameManager.Instance.Platforms;
+            world.Enqueue(platform);
+
+            //if (removeOld) Destroy(world.Dequeue()); // TODO: pool different platforms
+
             _lastPlatform = platform.transform;
 
             return platform;

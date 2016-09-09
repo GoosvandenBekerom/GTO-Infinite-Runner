@@ -5,14 +5,15 @@ namespace Assets.Scripts
 {
     public class ScoreManager : MonoBehaviour {
 
-        private ScoreManager _instance;
-        public ScoreManager Instance
+        private static ScoreManager _instance;
+        public static ScoreManager Instance
         {
             get { return _instance ?? new ScoreManager(); }
         }
 
         private float _distance;
-        private const int MetersPerSecond = 10;
+
+        public bool Moving { get; set; }
 
         public int Distance
         {
@@ -31,6 +32,7 @@ namespace Assets.Scripts
         {
             _instance = this;
             Coins = 0;
+            Moving = true;
         }
     
         void Start ()
@@ -40,8 +42,11 @@ namespace Assets.Scripts
 	
         void Update () {
             // increase distance
-            _distance += Time.deltaTime * GameManager.Instance.MovementSpeed * MetersPerSecond;
-            DistanceText.text = Distance + "";
+            if (Moving)
+            {
+                _distance += Time.deltaTime*GameManager.Instance.MovementSpeed;
+                DistanceText.text = Distance + "";
+            }
         }
 
         public void IncreaseCoins(int ammount)

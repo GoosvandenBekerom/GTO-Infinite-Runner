@@ -22,9 +22,10 @@ namespace Assets.Scripts
         {
             _onGround = true;
             _rigidbody = GetComponent<Rigidbody>();
+
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
 
 #if UNITY_EDITOR
@@ -88,6 +89,11 @@ namespace Assets.Scripts
                         break;
                 }
             }
+        }
+
+        void LateUpdate()
+        {
+            _rigidbody.velocity = new Vector3(0, 0, GameManager.Instance.MovementSpeed);
         }
 
         private void Jump()
