@@ -20,7 +20,7 @@ namespace Assets.Scripts
             }
         }
 
-        void Update()
+        void FixedUpdate()
         {
             // move platforms (this gameobject is parent to all platforms)
             transform.Translate(0, 0, -GameManager.Instance.MovementSpeed);
@@ -32,6 +32,8 @@ namespace Assets.Scripts
                 var oldPlatform = GameManager.Instance.Platforms.Dequeue();
                 Destroy(oldPlatform);
             }
+            // TODO: Levels genereren voor de speler, object plaatsen waar speler mee botst om te weten
+            // TODO: dat de speler op een nieuw platform is....
         }
 
         /// <summary>

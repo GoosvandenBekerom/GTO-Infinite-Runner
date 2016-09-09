@@ -25,5 +25,10 @@ namespace Assets.Scripts
             _instance = this;
             Platforms = new Queue<GameObject>();
         }
+
+        public void RestartGame()
+        {
+            
+        }
     }
 }

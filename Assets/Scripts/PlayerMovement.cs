@@ -15,7 +15,7 @@ namespace Assets.Scripts
         private Rigidbody _rigidbody;
 
         // touch properties
-        private const int MinSwipeDist = 10;
+        private const int MinSwipeDist = 50;
         private Vector2 _startPos;
 
         private void Awake()
@@ -26,6 +26,8 @@ namespace Assets.Scripts
 
         private void Update()
         {
+
+#if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 Jump();
@@ -42,6 +44,7 @@ namespace Assets.Scripts
             {
                 MoveRight();
             }
+#endif
 
             if (Input.touchCount > 0)
             {
@@ -53,36 +56,34 @@ namespace Assets.Scripts
                         _startPos = touch.position;
                         break;
                     case TouchPhase.Ended:
-                        var swipeDistVertical =
-                            (new Vector3(0, touch.position.y, 0) - new Vector3(0, _startPos.y, 0)).magnitude;
+                        var distance = 
+                            new Vector2(touch.position.x, touch.position.y) - 
+                            new Vector2(_startPos.x, _startPos.y);
 
-                        if (swipeDistVertical > MinSwipeDist)
+                        var vertical = Math.Abs(distance.y) > Math.Abs(distance.x);
+                        var vertDirection = distance.y;
+                        var horDirection = distance.x;
+
+                        if (Math.Abs(vertDirection) < MinSwipeDist && Math.Abs(horDirection) < MinSwipeDist) break;
+
+                        if (vertDirection > 0 && vertical)
                         {
-                            var swipeValue = Mathf.Sign(touch.position.y - _startPos.y);
-
-                            if (swipeValue > 0)
-                            {
-                                Jump();
-                            }
-                            else if (swipeValue < 0)
-                            {
-                                Slide();
-                            }
+                            Jump();
+                            break;
                         }
-
-                        var swipeDistHorizontal =
-                            (new Vector3(touch.position.x, 0, 0) - new Vector3(_startPos.x, 0, 0)).magnitude;
-                        if (swipeDistHorizontal > MinSwipeDist)
+                        if (vertDirection < 0 && vertical)
                         {
-                            var swipeValue = Mathf.Sign(touch.position.x - _startPos.x);
-                            if (swipeValue > 0)
-                            {
-                                MoveRight();
-                            }
-                            else if (swipeValue < 0)
-                            {
-                                MoveLeft();
-                            }
+                            Slide();
+                            break;
+                        }
+                        if (horDirection < 0 && !vertical)
+                        {
+                            MoveLeft();
+                            break;
+                        }
+                        if (horDirection > 0 && !vertical)
+                        {
+                            MoveRight();
                         }
                         break;
                 }
