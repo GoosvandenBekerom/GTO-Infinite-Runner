@@ -10,23 +10,35 @@ namespace Assets.Scripts
         private bool _sliding;
 
         private const int JumpHeight = 275;
-        private const int SlideVelocity = 750; // force downwards for sliding after jump
-
+        private const int RollVelocity = 750; // force downwards for sliding after jump
+        
         private Rigidbody _rigidbody;
+        private CapsuleCollider _collider;
+        private Animator _animator;
 
         // touch properties
         private const int MinSwipeDist = 50;
         private Vector2 _startPos;
 
-        private void Awake()
+        void Awake()
         {
             _onGround = true;
             _rigidbody = GetComponent<Rigidbody>();
-
+            _collider = GetComponent<CapsuleCollider>();
+            _animator = GetComponentInChildren<Animator>();
         }
 
-        private void FixedUpdate()
+        void Start()
         {
+            _rigidbody.position = new Vector3(0, 1, 0);
+        }
+
+        /// <summary>
+        /// Handles Player Input
+        /// </summary>
+        void Update()
+        {
+            if (GameManager.Instance.GameOver) return;
 
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.UpArrow))
@@ -35,7 +47,7 @@ namespace Assets.Scripts
             }
             if (Input.GetKeyDown(KeyCode.DownArrow))
             {
-                Slide();
+                Roll();
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
@@ -74,7 +86,7 @@ namespace Assets.Scripts
                         }
                         if (vertDirection < 0 && vertical)
                         {
-                            Slide();
+                            Roll();
                             break;
                         }
                         if (horDirection < 0 && !vertical)
@@ -93,33 +105,44 @@ namespace Assets.Scripts
 
         void LateUpdate()
         {
-            _rigidbody.velocity = new Vector3(0, 0, GameManager.Instance.MovementSpeed);
+            if (GameManager.Instance.GameOver) return;
+
+            var velo = _rigidbody.velocity;
+            velo.z = GameManager.Instance.MovementSpeed;
+
+            _rigidbody.velocity = velo;
         }
 
         private void Jump()
         {
             if (!_onGround || _sliding) return;
 
+            _animator.SetTrigger("Jump");
             _rigidbody.AddForce(Vector3.up * JumpHeight);
             _onGround = false;
         }
 
-        private void Slide()
+        private void Roll()
         {
             if (_sliding) return;
 
-            StartCoroutine(SlideAndRise());
+            _animator.SetTrigger("Roll");
+            StartCoroutine(RollAndRise());
+
+            // TODO: fix rolling with animation and animationevents
         }
 
-        IEnumerator SlideAndRise()
+        IEnumerator RollAndRise()
         {
-            transform.localScale += Vector3.down/2;
-            _rigidbody.AddForce(Vector3.down * SlideVelocity);
+            _rigidbody.AddForce(Vector3.down * RollVelocity);
+            _collider.height = 1;
+            _collider.center += new Vector3(0, -0.5f, 0);
             _sliding = true;
 
             yield return new WaitForSeconds(0.65f);
 
-            transform.localScale += Vector3.up / 2;
+            _collider.height = 2;
+            _collider.center = new Vector3(_collider.center.x, 0, _collider.center.z);
             _sliding = false;
         }
 
@@ -127,7 +150,8 @@ namespace Assets.Scripts
         {
             if (transform.position.x > -2)
             {
-                transform.Translate(Vector3.left);
+                _animator.SetTrigger("Strafe Left");
+                _rigidbody.MovePosition(_rigidbody.position += Vector3.left);
             }
         }
 
@@ -135,7 +159,8 @@ namespace Assets.Scripts
         {
             if (transform.position.x < 2)
             {
-                transform.Translate(Vector3.right);
+                _animator.SetTrigger("Strafe Right");
+                _rigidbody.MovePosition(_rigidbody.position += Vector3.right);
             }
         }
 

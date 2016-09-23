@@ -13,8 +13,6 @@ namespace Assets.Scripts
 
         private float _distance;
 
-        public bool Moving { get; set; }
-
         public int Distance
         {
             get
@@ -32,7 +30,6 @@ namespace Assets.Scripts
         {
             _instance = this;
             Coins = 0;
-            Moving = true;
         }
     
         void Start ()
@@ -42,7 +39,7 @@ namespace Assets.Scripts
 	
         void Update () {
             // increase distance
-            if (Moving)
+            if (!GameManager.Instance.GameOver)
             {
                 _distance += Time.deltaTime*GameManager.Instance.MovementSpeed;
                 DistanceText.text = Distance + "";
