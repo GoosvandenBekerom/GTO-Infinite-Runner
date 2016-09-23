@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -116,7 +115,7 @@ namespace Assets.Scripts
         private void Jump()
         {
             if (!_onGround || _sliding) return;
-
+            
             _animator.SetTrigger("Jump");
             _rigidbody.AddForce(Vector3.up * JumpHeight);
             _onGround = false;
@@ -126,21 +125,19 @@ namespace Assets.Scripts
         {
             if (_sliding) return;
 
-            _animator.SetTrigger("Roll");
-            StartCoroutine(RollAndRise());
-
-            // TODO: fix rolling with animation and animationevents
-        }
-
-        IEnumerator RollAndRise()
-        {
             _rigidbody.AddForce(Vector3.down * RollVelocity);
             _collider.height = 1;
             _collider.center += new Vector3(0, -0.5f, 0);
             _sliding = true;
 
-            yield return new WaitForSeconds(0.65f);
+            _animator.SetTrigger("Roll");
+        }
 
+        /// <summary>
+        /// This function gets called by an animation event at the end of the rolling animation
+        /// </summary>
+        public void StopRolling()
+        {
             _collider.height = 2;
             _collider.center = new Vector3(_collider.center.x, 0, _collider.center.z);
             _sliding = false;
@@ -150,7 +147,7 @@ namespace Assets.Scripts
         {
             if (transform.position.x > -2)
             {
-                _animator.SetTrigger("Strafe Left");
+               // _animator.SetTrigger("Strafe Left");
                 _rigidbody.MovePosition(_rigidbody.position += Vector3.left);
             }
         }
@@ -159,7 +156,7 @@ namespace Assets.Scripts
         {
             if (transform.position.x < 2)
             {
-                _animator.SetTrigger("Strafe Right");
+                //_animator.SetTrigger("Strafe Right");
                 _rigidbody.MovePosition(_rigidbody.position += Vector3.right);
             }
         }
