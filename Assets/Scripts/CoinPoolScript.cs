@@ -40,7 +40,7 @@ namespace Assets.Scripts
             _currentXspawnPos = 0;
             _lastCoinZpos = CoinStartPos;
 
-            for (var i = CoinStartPos; i < CoinPoolSize+ CoinStartPos; i++)
+            for (var i = CoinStartPos; i < CoinPoolSize + CoinStartPos; i++)
             {
                 var coin = Instantiate(CoinPrefab, new Vector3(_currentXspawnPos, _lastCoinYpos, _lastCoinZpos), Quaternion.identity) as GameObject;
                 coin.transform.parent = transform;

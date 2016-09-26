@@ -6,7 +6,7 @@ namespace Assets.Scripts
     public class PlayerMovement : MonoBehaviour
     {
         private bool _onGround;
-        private bool _sliding;
+        private bool _rolling;
 
         private const int JumpHeight = 275;
         private const int RollVelocity = 750; // force downwards for sliding after jump
@@ -114,7 +114,7 @@ namespace Assets.Scripts
 
         private void Jump()
         {
-            if (!_onGround || _sliding) return;
+            if (!_onGround || _rolling) return;
             
             _animator.SetTrigger("Jump");
             _rigidbody.AddForce(Vector3.up * JumpHeight);
@@ -123,12 +123,12 @@ namespace Assets.Scripts
 
         private void Roll()
         {
-            if (_sliding) return;
+            if (_rolling) return;
 
             _rigidbody.AddForce(Vector3.down * RollVelocity);
             _collider.height = 1;
             _collider.center += new Vector3(0, -0.5f, 0);
-            _sliding = true;
+            _rolling = true;
 
             _animator.SetTrigger("Roll");
         }
@@ -140,7 +140,7 @@ namespace Assets.Scripts
         {
             _collider.height = 2;
             _collider.center = new Vector3(_collider.center.x, 0, _collider.center.z);
-            _sliding = false;
+            _rolling = false;
         }
 
         private void MoveLeft()
