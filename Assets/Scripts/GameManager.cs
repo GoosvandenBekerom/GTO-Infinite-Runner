@@ -16,6 +16,8 @@ namespace Assets.Scripts
         [Header("Player Properties")]
         [Range(5, 50)]
         public float MovementSpeed;
+
+        private float _originalMovementSpeed;
         
         // queue to get rid of old platforms, boolean is true when platform is entered
         public Queue<GameObject> ActivePlatforms { get; private set; }
@@ -26,6 +28,9 @@ namespace Assets.Scripts
         /// </summary>
         public bool HadWarning { get; set; }
 
+        private float _warningTime;
+        private const float ExtraWarningTime = 10;
+
         /// <summary>
         /// Is the game over?
         /// </summary>
@@ -35,6 +40,7 @@ namespace Assets.Scripts
         {
             _instance = this;
             ActivePlatforms = new Queue<GameObject>();
+            _originalMovementSpeed = MovementSpeed;
 
             HadWarning = false;
             GameOver = false;
@@ -45,6 +51,14 @@ namespace Assets.Scripts
             if (GameOver) return;
 
             MovementSpeed += 0.005f;
+
+            if (Mathf.Abs(Time.time - _warningTime) > ExtraWarningTime && HadWarning)
+            {
+                // Player gets extra warning / warning back
+                HadWarning = false;
+                Debug.Log("Got Extra warning/life at :" + Time.time);
+                _warningTime = 0f;
+            }
         }
 
         public void CrashIntoObject()
@@ -57,13 +71,15 @@ namespace Assets.Scripts
             }
             
             HadWarning = true;
-            MovementSpeed -= 2;
+            _warningTime = Time.time;
+            MovementSpeed -= (MovementSpeed*0.2f);
         }
 
         public void RestartGame()
         {
             HadWarning = false;
             GameOver = false;
+            MovementSpeed = _originalMovementSpeed;
 
             // TODO: fix restart functionality
         }
