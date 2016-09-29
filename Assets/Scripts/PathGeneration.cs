@@ -28,7 +28,6 @@ namespace Assets.Scripts
             _platformLength = PlatformPrefabs[0].transform.localScale.z;
             _poolSize = PlatformPrefabs.Length * 3;
             _pooledPlatforms = new List<GameObject>();
-
             
             for (var i = 0; i < _poolSize; i++)
             {
@@ -100,42 +99,5 @@ namespace Assets.Scripts
 
             _lastPlatform = platform.transform;
         }
-        
-        /*
-        Old way of spawning platforms without pooling
-
-        /// <summary>
-        /// Spawn a new platform at the end of the world.
-        /// </summary>
-        /// <param name="removeOld"> remove the first platform in the world </param>
-        /// <param name="zPos"> z position to spawn the new platform at </param>
-        /// <returns> The newly instantiated platform </returns>
-        public GameObject SpawnPlatform(bool removeOld, float zPos = -1)
-        {
-            var world = GameManager.Instance.ActivePlatforms;
-            var platformNumber = (world.Count < 4) ? 0 : Random.Range(0, PlatformPrefabs.Length);
-
-            var pos = (_lastPlatform == null)
-                ? PlatformPrefabs[0].transform.position : _lastPlatform.transform.position;
-            var zPosition = (zPos == -1)
-                ? _lastPlatform.transform.position.z + _platformLength : zPos;
-
-            // -0.02f is to compensate for rigidbody collision with floor failure
-            var platform = Instantiate(
-                PlatformPrefabs[platformNumber],
-                new Vector3(pos.x, pos.y - 0.02f, zPosition),
-                Quaternion.identity) as GameObject;
-
-            platform.transform.parent = transform;
-
-
-            world.Enqueue(platform);
-
-            if (removeOld) Destroy(world.Dequeue());
-
-            _lastPlatform = platform.transform;
-
-            return platform;
-        }*/
     }
 }
