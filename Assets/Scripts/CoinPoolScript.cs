@@ -5,14 +5,6 @@ namespace Assets.Scripts
 {
     public class CoinPoolScript : MonoBehaviour
     {
-
-        private static CoinPoolScript _instance;
-
-        public static CoinPoolScript Instance
-        {
-            get { return _instance ?? new CoinPoolScript(); }
-        }
-
         public GameObject CoinPrefab;
         public Transform Player;
 
@@ -24,18 +16,17 @@ namespace Assets.Scripts
 
         private int _lastCoinZpos;
 
-        private const int CoinStartPos = 10;
+        private const int CoinStartPos = 30;
         private const int CoinsInRow = 20; // 10*2 for spacing between coins
         private int _currentXspawnPos;
 
-        void Awake()
-        {
-            _instance = this;
-            _lastCoinYpos = 1;
-        }
-
+        public ScoreManager ScoreManager { get; private set; }
+        
         void Start()
         {
+            ScoreManager = GameObject.Find("ScoreManager").GetComponent<ScoreManager>();
+
+            _lastCoinYpos = 1;
             _coins = new Queue<Transform>(CoinPoolSize);
             _currentXspawnPos = 0;
             _lastCoinZpos = CoinStartPos;
@@ -65,7 +56,7 @@ namespace Assets.Scripts
         public void ReplaceCoin()
         {
             var coinPos = _coins.Peek().position;
-            if (coinPos.y < 15 && coinPos.z > (Player.position.z - 2)) return;
+            if (coinPos.y < 15 && coinPos.z > (Player.position.z - 3)) return;
             //coin has been missed or picked up.
 
             var coin = _coins.Dequeue();

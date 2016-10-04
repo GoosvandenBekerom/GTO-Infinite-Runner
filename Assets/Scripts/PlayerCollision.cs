@@ -8,7 +8,6 @@ namespace Assets.Scripts
         {
             if (other.CompareTag("Obstacle"))
             {
-                Debug.Log("Hit Obstacle");
                 GameManager.Instance.CrashIntoObject();
             }
         }

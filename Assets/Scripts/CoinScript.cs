@@ -6,16 +6,20 @@ namespace Assets.Scripts
     {
         public int Value;
 
+        private CoinPoolScript _poolScript;
+
         void Start()
         {
-            if (Value == 0) Value = 1;
+            if (Value == 0) Value = 1; // default value
+
+            _poolScript = GetComponentInParent<CoinPoolScript>();
         }
 
         void Update()
         {
-            if (transform.position.z < (CoinPoolScript.Instance.Player.position.z - 2))
+            if (transform.position.z < (_poolScript.Player.position.z - 3))
             {
-                CoinPoolScript.Instance.ReplaceCoin();
+                _poolScript.ReplaceCoin();
             }
         }
 
@@ -23,9 +27,9 @@ namespace Assets.Scripts
         {
             if (other.CompareTag("Player"))
             {
-                ScoreManager.Instance.IncreaseCoins(Value);
+                _poolScript.ScoreManager.IncreaseCoins(Value);
                 transform.Translate(Vector3.up*20);
-                CoinPoolScript.Instance.ReplaceCoin();
+                _poolScript.ReplaceCoin();
             }
         }
     }

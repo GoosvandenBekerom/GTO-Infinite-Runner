@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
@@ -13,23 +15,27 @@ namespace Assets.Scripts
         }
 
         // Player Properties
-        [Header("Player Properties")]
-        [Range(5, 50)]
-        public float MovementSpeed;
+        private const float BaseMovementSpeed = 5;
 
-        private float _originalMovementSpeed;
+        public float MovementSpeed
+        {
+            get { return BaseMovementSpeed + DifficultyLevel; }
+        }
+
+        public int DifficultyLevel { get; set; }
         
         // queue to get rid of old platforms, boolean is true when platform is entered
         public Queue<GameObject> ActivePlatforms { get; private set; }
         
+        public bool GameRunning { get; set; }
+
         /// <summary>
-        /// Did de player run into an obstacle once?
-        /// TODO: reset after certain ammount of time
+        /// Did de player run into an obstacle?
         /// </summary>
         public bool HadWarning { get; set; }
 
         private float _warningTime;
-        private const float ExtraWarningTime = 10;
+        private const float ExtraWarningTime = 15;
 
         /// <summary>
         /// Is the game over?
@@ -39,18 +45,26 @@ namespace Assets.Scripts
         void Awake()
         {
             _instance = this;
+            DontDestroyOnLoad(gameObject);
+            
+            if (FindObjectsOfType(GetType()).Length > 1)
+            {
+                Destroy(gameObject);
+            }
+
+            SceneManager.LoadScene("MainMenu");
+
             ActivePlatforms = new Queue<GameObject>();
-            _originalMovementSpeed = MovementSpeed;
 
             HadWarning = false;
             GameOver = false;
+
+            DifficultyLevel = 2;
         }
 
         void LateUpdate()
         {
-            if (GameOver) return;
-
-            MovementSpeed += 0.005f;
+            if (!GameRunning || GameOver) return;
 
             if (Mathf.Abs(Time.time - _warningTime) > ExtraWarningTime && HadWarning)
             {
@@ -66,22 +80,39 @@ namespace Assets.Scripts
             if (HadWarning)
             {
                 GameOver = true;
+
+                var panel = GameObject.Find("GameOver Canvas");
+                var gameOverScreen = panel.GetComponent<GameOverScreenScript>();
+                gameOverScreen.DisplayGameOver();
+
                 Debug.Log("Game Over!");
                 return;
             }
-            
+
+            Debug.Log("Hit Obstacle");
             HadWarning = true;
             _warningTime = Time.time;
-            MovementSpeed -= (MovementSpeed*0.2f);
+            DifficultyLevel -= 2;
         }
 
-        public void RestartGame()
+        /// <summary>
+        /// Set all default values for the game
+        /// </summary>
+        /// <param name="reset">Are you restarting the game from an old game in the same scene?</param>
+        public void RestartGame(bool reset)
         {
             HadWarning = false;
             GameOver = false;
-            MovementSpeed = _originalMovementSpeed;
+            _warningTime = 0f;
+            ActivePlatforms = new Queue<GameObject>();
+            Time.timeScale = 1;
 
-            // TODO: fix restart functionality
+            if (reset) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        public void ReturnToMainMenu()
+        {
+            SceneManager.LoadScene("MainMenu");
         }
     }
 }

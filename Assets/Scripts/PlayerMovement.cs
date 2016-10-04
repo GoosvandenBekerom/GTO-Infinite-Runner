@@ -8,7 +8,9 @@ namespace Assets.Scripts
         private bool _onGround;
         private bool _rolling;
 
-        private const int JumpHeight = 275;
+        private float _animationDuration = 3.5f; // for camera animation restrictions
+
+        private const int JumpHeight = 265;
         private const int RollVelocity = 750; // force downwards for sliding after jump
         
         private Rigidbody _rigidbody;
@@ -19,16 +21,20 @@ namespace Assets.Scripts
         private const int MinSwipeDist = 50;
         private Vector2 _startPos;
 
+        private float _sceneStartTime;
+
         void Awake()
         {
             _onGround = true;
             _rigidbody = GetComponent<Rigidbody>();
             _collider = GetComponent<CapsuleCollider>();
             _animator = GetComponentInChildren<Animator>();
+            _sceneStartTime = Time.time;
         }
 
         void Start()
         {
+            GameManager.Instance.GameRunning = true;
             _rigidbody.position = new Vector3(0, 1, 0);
         }
 
@@ -37,7 +43,7 @@ namespace Assets.Scripts
         /// </summary>
         void Update()
         {
-            if (GameManager.Instance.GameOver) return;
+            if (GameManager.Instance.GameOver || (Time.time - _sceneStartTime) < _animationDuration) return;
 
 #if UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.UpArrow))

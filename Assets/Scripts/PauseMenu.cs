@@ -3,9 +3,8 @@ using UnityEngine;
 
 namespace Assets.scripts
 {
-    public class PauseMenu : MonoBehaviour {
-
-        public int MainMenuScene;
+    public class PauseMenu : MonoBehaviour
+    {
         public Font PauseMenuFont;
         private bool _pauseEnabled;
 
@@ -51,14 +50,13 @@ namespace Assets.scripts
             //Make restart game button
             if (GUI.Button(new Rect(xStartPos, Screen.height/2 + 0, 250, 50), "Restart Game"))
             {
-                GameManager.Instance.RestartGame();
+                GameManager.Instance.RestartGame(true);
             }
 
             //Make Main Menu button
             if (GUI.Button(new Rect(xStartPos, Screen.height / 2 + 50, 250, 50), "Main Menu"))
             {
-                //SceneManager.LoadScene(MainMenuScene);
-                Debug.Log("No main menu scene implemented yet.");
+                GameManager.Instance.ReturnToMainMenu();
             }
         }
 
